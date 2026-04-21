@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HabitFlow | Dashboard</title>
+    <!-- Google Fonts for Premium Look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="apple-touch-icon" href="favicon.svg">
+</head>
+<body class="dashboard-body has-bottom-nav">
+
+    <!-- Background glowing orbs -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <!-- Sticky Top Header (Premium Mobile App Style) -->
+    <header class="app-header">
+        <div class="header-content">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="accent-text"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <h1 class="app-title">Habit<span class="text-gradient">Flow</span></h1>
+            </div>
+            <div class="user-greeting">
+                <span id="user-display-name"></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        
+        <div class="dashboard-header-row">
+            <div>
+                <h2 class="page-title">Dashboard</h2>
+                <p class="subtitle">Keep pushing your limits!</p>
+            </div>
+            <div class="month-selector">
+                <select id="month-select" class="dropdown"></select>
+            </div>
+        </div>
+
+        <!-- Stats Overview Row -->
+        <section class="overview-grid" id="section-stats">
+            <div class="stat-card glass-panel">
+                <h3 class="stat-title">Total Habits</h3>
+                <p class="stat-value" id="stat-total">0</p>
+            </div>
+            <div class="stat-card glass-panel">
+                <h3 class="stat-title">Goal Check</h3>
+                <p class="stat-value" id="stat-goal-pct">0%</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="stat-goal-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="stat-card glass-panel">
+                <h3 class="stat-title">Weekly Pace</h3>
+                <p class="stat-value" id="stat-weekly-pct">0%</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="stat-weekly-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Area: Chart + Tracker Grid -->
+        <section class="main-content-grid">
+            
+            <!-- Graph Container -->
+            <div class="chart-container glass-panel">
+                <h3>7-Day Performance</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Habit Tracker Matrix -->
+            <div class="tracker-container glass-panel" id="section-tracker">
+                <div class="tracker-header-controls">
+                    <h3>Monthly Tracker (<span id="tracker-month-display"></span>)</h3>
+                    <div class="legend" style="display:flex; align-items:center; gap:8px; font-size: 0.85rem; color: #8B9BB4;">
+                        <span style="display:inline-block; width:12px; height:12px; background:linear-gradient(135deg, #6366f1 0%, #4F46E5 100%); border-radius:3px;"></span> Completed
+                    </div>
+                </div>
+
+                <!-- Scrollable Grid Wrapper -->
+                <div class="table-responsive">
+                    <table class="habit-grid" id="habit-grid-table">
+                        <thead>
+                            <tr id="grid-header-row">
+                                <th class="habit-name-col">Habit</th>
+                                <th class="streak-col">🔥 Streak</th>
+                                <!-- Days 1-31 will be injected via JS -->
+                            </tr>
+                        </thead>
+                        <tbody id="grid-body">
+                            <!-- Habits Rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Zero State -->
+                <div id="no-habits-msg" class="empty-state hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5; margin-bottom:1rem;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <p>No habits added yet. Tap the glowing '+' button to build your routine!</p>
+                </div>
+            </div>
+
+        </section>
+        
+        <!-- Timer Section -->
+        <section class="timer-container glass-panel" id="section-timer" style="margin-top: 2rem;">
+            <h3>Study Timer</h3>
+            <div class="timer-display" id="timer-display">25:00</div>
+            <div class="timer-controls mt-4">
+                <button class="btn btn-premium" id="timer-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    Start
+                </button>
+                <button class="btn btn-primary" id="timer-pause">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                    Pause
+                </button>
+                <button class="btn btn-outline-danger" id="timer-reset">Reset</button>
+            </div>
+            <div class="timer-presets mt-4" style="display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" data-time="5">5m</button>
+                <button class="btn btn-primary btn-sm" data-time="15">15m</button>
+                <button class="btn btn-primary btn-sm" data-time="25">25m</button>
+                <button class="btn btn-primary btn-sm" data-time="50">50m</button>
+                <div class="custom-timer-input" style="display:flex; gap:5px; align-items:center; background:rgba(255,255,255,0.05); padding:2px 5px; border-radius:8px; border:1px solid var(--border);">
+                    <input type="number" id="custom-timer-min" placeholder="Min" min="1" max="999" style="width:50px; background:transparent; border:none; color:white; text-align:center; outline:none; font-size:0.9rem;">
+                    <button class="btn btn-premium btn-sm" id="timer-custom-set" style="padding: 0.4rem 0.6rem; font-size: 0.8rem;">Set</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Push bottom margin so content isn't hidden behind FAB and Nav -->
+        <div style="height: 100px;"></div>
+    </main>
+
+    <!-- Floating Action Button (FAB) -->
+    <button id="fab-add-habit" class="fab">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </button>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <a href="#section-stats" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            <span>Stats</span>
+        </a>
+        <a href="#section-tracker" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Tracker</span>
+        </a>
+        <a href="#section-timer" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Timer</span>
+        </a>
+        <a href="#" id="logout-btn" class="nav-item text-danger">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Logout</span>
+        </a>
+    </nav>
+
+    <!-- Bottom Sheet overlay -->
+    <div id="sheet-overlay" class="sheet-overlay"></div>
+
+    <!-- Add Habit Bottom Sheet -->
+    <div id="add-sheet" class="bottom-sheet">
+        <div class="sheet-handle"></div>
+        <h2 class="sheet-title">Create New Habit</h2>
+        <form id="add-habit-form">
+            <div class="form-group custom-input">
+                <label for="new-habit-name">Habit Name</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <input type="text" id="new-habit-name" placeholder="E.g., Drink Water" required autocomplete="off">
+                </div>
+            </div>
+            <div class="sheet-actions mt-4">
+                <button type="submit" class="btn btn-premium btn-block">
+                    Save Habit
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Edit/Delete Habit Bottom Sheet -->
+    <div id="edit-sheet" class="bottom-sheet">
+        <div class="sheet-handle"></div>
+        <h2 class="sheet-title">Edit Habit</h2>
+        <form id="edit-habit-form">
+            <div class="form-group custom-input">
+                <label for="edit-habit-name">Habit Name</label>
+                <div class="input-wrapper">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="2" x2="22" y2="6"></line><path d="M7.5 20.5 19 9l-4-4L3.5 16.5 2 22z"></path></svg>
+                    <input type="text" id="edit-habit-name" required autocomplete="off">
+                </div>
+            </div>
+            <input type="hidden" id="edit-habit-id">
+            <div class="sheet-actions mt-4">
+                <button type="submit" class="btn btn-premium btn-block mb-1">Save Changes</button>
+                <button type="button" class="btn btn-outline-danger btn-block" id="delete-habit-btn">Delete Habit</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Core App Logic -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
