@@ -1,28 +1,39 @@
 @echo off
-echo Initializing Git repository...
+set REPO_URL=https://github.com/Finu-call/habit.git
+
+echo.
+echo ==========================================
+echo   HabitFlow Push Script
+echo ==========================================
+echo Repo: %REPO_URL%
+echo.
+
+echo [+] Initializing Git repository...
 git init
 
 echo.
-echo Adding files to staging...
+echo [+] Adding files to staging...
 git add .
 
 echo.
-echo Committing files...
+echo [+] Committing files...
 git commit -m "feat: implement background push notifications, PWA support, and updated reminder schedule"
 
 echo.
-echo Renaming branch to main...
+echo [+] Renaming branch to main...
 git branch -M main
 
 echo.
-echo Adding remote origin (https://github.com/Finu-call/habit.git)...
-git remote add origin https://github.com/Finu-call/habit.git 2>nul
-git remote set-url origin https://github.com/Finu-call/habit.git
+echo [+] Setting up remote origin...
+git remote add origin %REPO_URL% 2>nul
+git remote set-url origin %REPO_URL%
 
 echo.
-echo Pushing to GitHub...
+echo [+] Pushing to GitHub (Main)...
 git push -u origin main
 
 echo.
-echo Done! Press any key to exit.
+echo ==========================================
+echo   Done! Your changes are synced.
+echo ==========================================
 pause
