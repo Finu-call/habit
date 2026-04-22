@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function init() {
         populateMonthSelector();
         renderDashboard();
-        initNotificationSystem();
+        initNotificationSystem(); // Now handles permissions UI
         setupPushNotifications();
     }
 
@@ -115,29 +115,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
             console.log('Service Worker registered with scope:', registration.scope);
 
-            // Request permission & get token
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
+            // Fetch current token if permission is already granted
+            if (Notification.permission === 'granted') {
                 const currentToken = await getToken(messaging, {
                     vapidKey: 'BJXt6YabhVluQeBc-BTCHBf4Hh4yEQq89YlYgFgW56gsDAQKAgOOqARsKnfNW52UBqqo2kWlr3sGcTn8a7pPyuw',
                     serviceWorkerRegistration: registration
                 });
 
-                if (currentToken) {
-                    console.log('FCM Token received:', currentToken);
-                    // Store token in user's profile
-                    if (currentUserUid) {
-                        await update(ref(db, `users/${currentUserUid}`), {
-                            fcmToken: currentToken,
-                            lastTokenUpdate: new Date().toISOString()
-                        });
-                    }
-                } else {
-                    console.warn('No registration token available. Request permission to generate one.');
+                if (currentToken && currentUserUid) {
+                    await update(ref(db, `users/${currentUserUid}`), {
+                        fcmToken: currentToken,
+                        lastTokenUpdate: new Date().toISOString()
+                    });
                 }
             }
         } catch (err) {
             console.error('An error occurred while setting up push notifications:', err);
+        }
+    }
+
+    async function ensureNotificationPermission() {
+        if ("Notification" in window && Notification.permission === 'default') {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    await setupPushNotifications();
+                }
+            } catch (e) {
+                console.error("Permission request failed", e);
+            }
         }
     }
 
@@ -153,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Modals and Interactions
     fabButton.addEventListener('click', () => {
+        ensureNotificationPermission();
         openSheet(addSheet);
         document.getElementById('new-habit-name').focus();
     });
@@ -286,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleCheckboxToggle(dateKey, habitId, isChecked) {
+        ensureNotificationPermission();
         if (!userData.records[dateKey]) userData.records[dateKey] = [];
         if (isChecked) {
             if (!userData.records[dateKey].includes(habitId)) userData.records[dateKey].push(habitId);
@@ -437,13 +445,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===================================
-    // Notification System (Kept Local)
+    // Notification System (Engine Optimized for Mobile)
     // ===================================
     function initNotificationSystem() {
         if (!("Notification" in window)) return;
-        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-            Notification.requestPermission();
-        }
+        
         setInterval(checkPushNotification, 60000);
         checkPushNotification();
     }
@@ -477,17 +483,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function triggerDailyReminder(title, body) {
-        const todayStr = new Date().toDateString() + title; // Unique for each daily type
+        const todayStr = new Date().toDateString() + title;
         const lastNotified = localStorage.getItem('lastHabitNotify_' + title);
 
         if (lastNotified !== todayStr) {
-            const notif = new Notification(title, {
-                body: body,
-                icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjM2I4MmY2IiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMUwwLjUgMTEiLz48L3N2Zz4="
-            });
-            
-            notif.onclick = () => window.focus();
-            localStorage.setItem('lastHabitNotify_' + title, todayStr);
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(title, {
+                        body: body,
+                        icon: "favicon.svg",
+                        badge: "favicon.svg"
+                    });
+                    localStorage.setItem('lastHabitNotify_' + title, todayStr);
+                });
+            } else {
+                new Notification(title, { body: body, icon: "favicon.svg" });
+                localStorage.setItem('lastHabitNotify_' + title, todayStr);
+            }
         }
     }
 
@@ -510,9 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerStartBtn = document.getElementById('timer-start');
     if(timerStartBtn) {
         timerStartBtn.addEventListener('click', () => {
-            if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-                Notification.requestPermission();
-            }
+            ensureNotificationPermission();
             if (!timerInterval && timeRemaining > 0) {
                 timerInterval = setInterval(() => {
                     timeRemaining--;
@@ -565,14 +575,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function triggerTimerNotification() {
+        const title = "Time's Up! 🚀";
+        const body = "Your study timer has finished. Take a break or start a new session!";
+        
         if ("Notification" in window && Notification.permission === "granted") {
-            const notif = new Notification("Time's Up! 🚀", {
-                body: "Your study timer has finished. Take a break or start a new session!",
-                icon: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjM2I4MmY2IiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMUwwLjUgMTEiLz48L3N2Zz4="
-            });
-            notif.onclick = () => window.focus();
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(title, { body, icon: "favicon.svg" });
+                });
+            } else {
+                new Notification(title, { body, icon: "favicon.svg" });
+            }
         } else {
-            alert("Time's Up! Your study timer has finished.");
+            alert(body);
         }
         
         // Vibrate if supported

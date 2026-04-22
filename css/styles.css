@@ -104,6 +104,7 @@ body.has-bottom-nav {
 .text-gradient {
     background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 .accent-text { color: var(--accent-main); }
