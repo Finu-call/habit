@@ -17,7 +17,7 @@ git add .
 
 echo.
 echo [+] Committing files...
-git commit -m "feat: implement background push notifications, PWA support, and updated reminder schedule"
+git commit -m "feat: add 10:50 PM and 11 PM notification schedule and update reminder system"
 
 echo.
 echo [+] Renaming branch to main...
