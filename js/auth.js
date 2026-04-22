@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtnText = document.getElementById('submit-btn-text');
     const titleSpan = document.getElementById('auth-subtitle');
 
-    let isLoginMode = true;
+    let isLoginMode = false;
 
     // Listen for Auth state
     onAuthStateChanged(auth, (user) => {

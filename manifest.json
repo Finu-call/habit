@@ -1,6 +1,6 @@
 {
-  "name": "HabitFlow",
-  "short_name": "HabitFlow",
+  "name": "Habiq",
+  "short_name": "Habiq",
   "start_url": "/dashboard.html",
   "display": "standalone",
   "background_color": "#0F172A",

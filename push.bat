@@ -3,7 +3,7 @@ set REPO_URL=https://github.com/Finu-call/habit.git
 
 echo.
 echo ==========================================
-echo   HabitFlow Push Script
+echo   Habiq Push Script
 echo ==========================================
 echo Repo: %REPO_URL%
 echo.
@@ -17,7 +17,7 @@ git add .
 
 echo.
 echo [+] Committing files...
-git commit -m "feat: add 11:30 PM schedule and improve mobile notification compatibility"
+git commit -m "feat: rebrand to Habiq and update onboarding flow to default to create account"
 
 echo.
 echo [+] Renaming branch to main...
