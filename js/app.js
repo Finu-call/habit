@@ -465,7 +465,8 @@ document.addEventListener('DOMContentLoaded', () => {
             { h: 22, m: 50, title: "Late Night Check-in 🕙", body: "It's 10:50 PM. Have you marked all your habits for today?" },
             { h: 23, m: 0, title: "Day End Review 🌙", body: "11:00 PM is here. Don't let your streak break! Mark your habits now." },
             { h: 23, m: 15, title: "Nightly Nudge 🌙", body: "It's 11:15 PM. Just a quick reminder to check your progress!" },
-            { h: 23, m: 20, title: "Final Reflection ✨", body: "11:20 PM. Almost time for bed! Have you updated your habit tracker?" }
+            { h: 23, m: 20, title: "Final Reflection ✨", body: "11:20 PM. Almost time for bed! Have you updated your habit tracker?" },
+            { h: 23, m: 30, title: "Last Call 🌙", body: "It's 11:30 PM. One last look at your habits before the day ends!" }
         ];
 
         schedules.forEach(schedule => {
