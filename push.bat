@@ -17,7 +17,7 @@ git add .
 
 echo.
 echo [+] Committing files...
-git commit -m "feat: add 10:50 PM and 11 PM notification schedule and update reminder system"
+git commit -m "feat: add 10:50 PM, 11:00 PM, 11:15 PM and 11:20 PM notification schedule"
 
 echo.
 echo [+] Renaming branch to main...
